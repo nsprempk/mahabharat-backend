@@ -3,9 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import morgan from "morgan";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
 
 import chapterRoutes from "./routes/chapterRoutes.js";
 import verseRoutes from "./routes/verseRoutes.js";
@@ -15,26 +12,18 @@ import connectDB from "./config/db.js";
 
 dotenv.config();
 
-/*
-|--------------------------------------------------------------------------
-| App
-|--------------------------------------------------------------------------
-*/
-
 const app = express();
 
 /*
 |--------------------------------------------------------------------------
-| Paths
+| Trust proxy
+|--------------------------------------------------------------------------
+|
+| Useful when running behind Hostinger's reverse proxy.
 |--------------------------------------------------------------------------
 */
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const frontendDist = path.resolve(__dirname, "../frontend/dist");
-
-const frontendIndex = path.join(frontendDist, "index.html");
+app.set("trust proxy", 1);
 
 /*
 |--------------------------------------------------------------------------
@@ -60,15 +49,6 @@ app.use(
 |--------------------------------------------------------------------------
 | CORS
 |--------------------------------------------------------------------------
-|
-| Local:
-|   http://localhost:5173
-|
-| Production:
-|   https://bhagavadgita.site
-|
-| CLIENT_URL can also be supplied through .env.
-|--------------------------------------------------------------------------
 */
 
 const allowedOrigins = [
@@ -79,7 +59,11 @@ const allowedOrigins = [
 ];
 
 if (process.env.CLIENT_URL) {
-  allowedOrigins.push(process.env.CLIENT_URL.replace(/\/$/, ""));
+  const clientUrl = process.env.CLIENT_URL.trim().replace(/\/$/, "");
+
+  if (clientUrl && !allowedOrigins.includes(clientUrl)) {
+    allowedOrigins.push(clientUrl);
+  }
 }
 
 app.use(
@@ -87,18 +71,20 @@ app.use(
     origin: (origin, callback) => {
       /*
        * Allow requests without an Origin header.
-       * This includes direct server-to-server requests
-       * and some development tools.
+       * This is useful for direct browser/API requests,
+       * health checks and server-to-server requests.
        */
       if (!origin) {
         return callback(null, true);
       }
 
-      const normalizedOrigin = origin.replace(/\/$/, "");
+      const normalizedOrigin = origin.trim().replace(/\/$/, "");
 
       if (allowedOrigins.includes(normalizedOrigin)) {
         return callback(null, true);
       }
+
+      console.error(`CORS blocked: ${origin}`);
 
       return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
@@ -118,6 +104,7 @@ app.use(
 */
 
 app.use(express.json());
+
 app.use(
   express.urlencoded({
     extended: true,
@@ -130,7 +117,33 @@ app.use(
 |--------------------------------------------------------------------------
 */
 
-app.use(morgan("dev"));
+app.use(morgan("combined"));
+
+/*
+|--------------------------------------------------------------------------
+| Root API route
+|--------------------------------------------------------------------------
+*/
+
+app.get("/", (req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: "Mahabharat API is running",
+  });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Health check
+|--------------------------------------------------------------------------
+*/
+
+app.get("/api/health", (req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: "Mahabharat backend healthy",
+  });
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -146,98 +159,13 @@ app.use("/api/search", searchRoutes);
 
 /*
 |--------------------------------------------------------------------------
-| Health
-|--------------------------------------------------------------------------
-*/
-
-app.get("/api/health", (req, res) => {
-  return res.status(200).json({
-    success: true,
-    message: "Mahabharat backend healthy",
-  });
-});
-
-/*
-|--------------------------------------------------------------------------
-| Production React files
-|--------------------------------------------------------------------------
-*/
-
-const frontendExists = fs.existsSync(frontendIndex);
-
-if (frontendExists) {
-  console.log(`Frontend build found: ${frontendDist}`);
-
-  /*
-   * Serve Vite production files
-   */
-  app.use(express.static(frontendDist));
-} else {
-  console.warn(`Frontend build not found: ${frontendIndex}`);
-}
-
-/*
-|--------------------------------------------------------------------------
-| Root route
-|--------------------------------------------------------------------------
-|
-| Production:
-|   /
-|   -> React application
-|
-| Local backend-only mode:
-|   -> API status JSON
-|--------------------------------------------------------------------------
-*/
-
-app.get("/", (req, res) => {
-  if (frontendExists) {
-    return res.sendFile(frontendIndex);
-  }
-
-  return res.status(200).json({
-    success: true,
-    message: "Mahabharat API is running",
-  });
-});
-
-/*
-|--------------------------------------------------------------------------
-| React Router SPA fallback
-|--------------------------------------------------------------------------
-|
-| This is what fixes direct visits such as:
-|
-| /gita
-| /gita/adhyay/1
-| /gita/adhyay/1/shlok/1
-| /search
-| /favorites
-| /about
-| /privacy-policy
-|
-| Express sends index.html and React Router
-| takes over in the browser.
-|--------------------------------------------------------------------------
-*/
-
-if (frontendExists) {
-  app.get(/^\/(?!api(?:\/|$)).*/, (req, res) => {
-    return res.sendFile(frontendIndex);
-  });
-}
-
-/*
-|--------------------------------------------------------------------------
-| API 404
-|--------------------------------------------------------------------------
-|
-| API requests that do not exist should return
-| JSON instead of React's index.html.
+| API 404 HANDLER
 |--------------------------------------------------------------------------
 */
 
 app.use("/api", (req, res) => {
+  console.warn(`API route not found: ${req.method} ${req.originalUrl}`);
+
   return res.status(404).json({
     success: false,
     message: `API route not found: ${req.method} ${req.originalUrl}`,
@@ -246,7 +174,7 @@ app.use("/api", (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| Global 404
+| Non-API 404
 |--------------------------------------------------------------------------
 */
 
@@ -259,7 +187,7 @@ app.use((req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| Global error handler
+| GLOBAL ERROR HANDLER
 |--------------------------------------------------------------------------
 */
 
@@ -274,6 +202,16 @@ app.use((error, req, res, next) => {
 
   if (res.headersSent) {
     return next(error);
+  }
+
+  /*
+   * CORS error
+   */
+  if (error.message?.startsWith("CORS blocked")) {
+    return res.status(403).json({
+      success: false,
+      message: "Origin is not allowed.",
+    });
   }
 
   return res.status(500).json({
@@ -291,12 +229,12 @@ app.use((error, req, res, next) => {
 |--------------------------------------------------------------------------
 */
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log("==========================================");
 
-  console.log("      MAHABHARAT SERVER");
+  console.log("        MAHABHARAT API SERVER");
 
   console.log("==========================================");
 
@@ -304,9 +242,23 @@ app.listen(PORT, "0.0.0.0", () => {
 
   console.log(`Port: ${PORT}`);
 
-  console.log(`Frontend: ${frontendExists ? "READY" : "NOT BUILT"}`);
+  console.log(`Client URL: ${process.env.CLIENT_URL || "not configured"}`);
 
-  console.log("API: /api");
+  console.log("API Base: /api");
+
+  console.log("==========================================");
+
+  console.log("Available endpoints:");
+
+  console.log(`GET  /api/health`);
+
+  console.log(`GET  /api/chapters`);
+
+  console.log(`GET  /api/verses/chapter/:chapterNumber`);
+
+  console.log(`GET  /api/verses/chapter/:chapterNumber/verse/:verseNumber`);
+
+  console.log(`GET  /api/search?q=...`);
 
   console.log("==========================================");
 });
