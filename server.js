@@ -7,6 +7,7 @@ import morgan from "morgan";
 import chapterRoutes from "./routes/chapterRoutes.js";
 import verseRoutes from "./routes/verseRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 
 import connectDB from "./config/db.js";
 
@@ -156,6 +157,8 @@ app.use("/api/chapters", chapterRoutes);
 app.use("/api/verses", verseRoutes);
 
 app.use("/api/search", searchRoutes);
+
+app.use("/api/contact", contactRoutes);
 
 /*
 |--------------------------------------------------------------------------
