@@ -51,7 +51,7 @@ const EXPECTED_VERSE_COUNTS = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const backendRoot = path.resolve(__dirname, "..");
-const reportDir = path.join(backendRoot, "reports");
+const reportDir = path.join(backendRoot, ".audit-reports");
 
 const issues = [];
 const chapterSummaries = [];

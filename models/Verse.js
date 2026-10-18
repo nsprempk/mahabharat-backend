@@ -1,5 +1,23 @@
 import mongoose from "mongoose";
 
+const wordMeaningSchema = new mongoose.Schema(
+  {
+    word: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    meaning: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  {
+    _id: false,
+  },
+);
+
 const verseSchema = new mongoose.Schema(
   {
     chapterNumber: {
@@ -29,6 +47,37 @@ const verseSchema = new mongoose.Schema(
     },
 
     hindiMeaning: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    // New educational content fields
+
+    wordMeanings: {
+      type: [wordMeaningSchema],
+      default: [],
+    },
+
+    contextHindi: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    explanationHindi: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    keyTeachingHindi: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    lifeApplicationHindi: {
       type: String,
       default: "",
       trim: true,
