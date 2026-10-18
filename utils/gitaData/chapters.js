@@ -101,7 +101,7 @@ const chapters = [
     englishTitle: "Kshetra Kshetrajna Vibhaga Yoga",
     description:
       "शरीर, आत्मा और क्षेत्रज्ञ के स्वरूप तथा प्रकृति और पुरुष के भेद को समझाया गया है।",
-    verseCount: 35,
+    verseCount: 34,
   },
   {
     number: 14,
