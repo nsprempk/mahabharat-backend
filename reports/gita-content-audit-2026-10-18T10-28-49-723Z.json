@@ -1,0 +1,174 @@
+{
+  "generatedAt": "2026-10-18T10:28:49.726Z",
+  "apiBase": "https://api.bhagavadgita.site/api",
+  "readOnly": true,
+  "expected": {
+    "chapterCount": 18,
+    "totalVerseCount": 700,
+    "verseCountsByChapter": {
+      "1": 47,
+      "2": 72,
+      "3": 43,
+      "4": 42,
+      "5": 29,
+      "6": 47,
+      "7": 30,
+      "8": 28,
+      "9": 34,
+      "10": 42,
+      "11": 55,
+      "12": 20,
+      "13": 34,
+      "14": 27,
+      "15": 20,
+      "16": 24,
+      "17": 28,
+      "18": 78
+    }
+  },
+  "actual": {
+    "chapterRecords": 18,
+    "verseRecordsFetched": 700,
+    "uniqueChapterVersePairs": 700,
+    "apiFailures": 0
+  },
+  "keyFindings": {
+    "placeholderHindiMeanings": 0,
+    "missingHindiMeanings": 0,
+    "missingSanskritTexts": 0,
+    "HindiMeaningsContainingLatinText": 0,
+    "repeatedHindiMeaningRecordsFlaggedForReview": 0,
+    "chapterVerseCountMismatches": 0
+  },
+  "issueCounts": {},
+  "chapters": [
+    {
+      "chapter": 1,
+      "expected": 47,
+      "actual": 47,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 2,
+      "expected": 72,
+      "actual": 72,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 3,
+      "expected": 43,
+      "actual": 43,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 4,
+      "expected": 42,
+      "actual": 42,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 5,
+      "expected": 29,
+      "actual": 29,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 6,
+      "expected": 47,
+      "actual": 47,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 7,
+      "expected": 30,
+      "actual": 30,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 8,
+      "expected": 28,
+      "actual": 28,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 9,
+      "expected": 34,
+      "actual": 34,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 10,
+      "expected": 42,
+      "actual": 42,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 11,
+      "expected": 55,
+      "actual": 55,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 12,
+      "expected": 20,
+      "actual": 20,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 13,
+      "expected": 34,
+      "actual": 34,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 14,
+      "expected": 27,
+      "actual": 27,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 15,
+      "expected": 20,
+      "actual": 20,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 16,
+      "expected": 24,
+      "actual": 24,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 17,
+      "expected": 28,
+      "actual": 28,
+      "delta": 0,
+      "status": "OK"
+    },
+    {
+      "chapter": 18,
+      "expected": 78,
+      "actual": 78,
+      "delta": 0,
+      "status": "OK"
+    }
+  ],
+  "apiFailures": [],
+  "issues": []
+}
